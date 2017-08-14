@@ -70,7 +70,8 @@ public class MultiplexerTimeServer implements Runnable {
     public void run() {
 	while (!stop) {
 	    try {
-		selector.select(1000);
+//	    selector.select(); //选择一些I/O操作已经准备好的管道。每个管道对应着一个key。这个方法 是一个阻塞的选择操作。当至少有一个通道被选择时才返回。当这个方法被执行时，当前线程是允许被中断的。
+		selector.select(1000);	//无论是否有读写事件发生，selector每隔1秒都被唤醒一次。
 		Set<SelectionKey> selectedKeys = selector.selectedKeys();
 		Iterator<SelectionKey> it = selectedKeys.iterator();
 		SelectionKey key = null;
@@ -78,13 +79,13 @@ public class MultiplexerTimeServer implements Runnable {
 		    key = it.next();
 		    it.remove();
 		    try {
-			handleInput(key);
+		    	handleInput(key);
 		    } catch (Exception e) {
-			if (key != null) {
-			    key.cancel();
-			    if (key.channel() != null)
-				key.channel().close();
-			}
+				if (key != null) {
+				    key.cancel();
+				    if (key.channel() != null)
+				    	key.channel().close();
+				}
 		    }
 		}
 	    } catch (Throwable t) {
@@ -108,7 +109,7 @@ public class MultiplexerTimeServer implements Runnable {
 	    if (key.isAcceptable()) {
 		// Accept the new connection
 		ServerSocketChannel ssc = (ServerSocketChannel) key.channel();
-		SocketChannel sc = ssc.accept();
+		SocketChannel sc = ssc.accept();	//处理新的接入请求，完成TCP三次握手，建立物理链路
 		sc.configureBlocking(false);
 		// Add the new connection to the selector
 		sc.register(selector, SelectionKey.OP_READ);

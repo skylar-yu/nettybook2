@@ -47,13 +47,13 @@ public class SubReqClient {
 			public void initChannel(SocketChannel ch)
 				throws Exception {
 			    ch.pipeline().addLast(
-				    new ProtobufVarint32FrameDecoder());
+				    new ProtobufVarint32FrameDecoder());	//用于半包处理
 			    ch.pipeline().addLast(
 				    new ProtobufDecoder(
 					    SubscribeRespProto.SubscribeResp
-						    .getDefaultInstance()));
+						    .getDefaultInstance()));	//告诉ProtobufDecoder需要解码的目标类
 			    ch.pipeline().addLast(
-				    new ProtobufVarint32LengthFieldPrepender());
+				    new ProtobufVarint32LengthFieldPrepender()); 
 			    ch.pipeline().addLast(new ProtobufEncoder());
 			    ch.pipeline().addLast(new SubReqClientHandler());
 			}
